@@ -1,0 +1,256 @@
+---
+title: "ma615midterm"
+author: "Luyin Fu"
+date: "10/11/2019"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    df_print: paged
+
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(knitr)
+library(magrittr)
+library(kableExtra)
+library(ggplot2)              
+library(esquisse)             
+library(kableExtra)
+library(tidyr)
+library(stringr)
+library(dplyr)
+library(wesanderson)
+```
+
+# Introduction
+
+In this report, one looks at urbanization and carbon dioxide emission throughout the global and investigates into their relationship.  
+
+All data used are from World Bank database. And we look specifically at 1995 and 2005 to compare and contrast variable values from different countries.
+
+
+# World Urban Population
+
+One uses the urban population percentage, which is obtained the following formula, $$urban\ population\ percentage=\frac{urban\ population}{total\ population}$$ 
+to measure the level of urbanization in each country.
+
+```{r warning=FALSE}
+data <- readxl::read_xls("/Users/tsuyu/Downloads/Data\ science\ in\ R/project/World\ Bank\ Data/climate_change.xls",
+         sheet = "Data")
+pop <- data %>% filter(`Series code`=="SP.POP.TOTL")
+urbanpop <- data %>% filter(`Series code`=="SP.URB.TOTL")
+
+Country_info <- readxl::read_xls("/Users/tsuyu/Downloads/Data\ science\ in\ R/project/World\ Bank\ Data/climate_change.xls", sheet="Country")
+
+```
+
+
+```{r warning=FALSE}
+pop1 <-  dplyr::select(pop, `Country name`, `2005`, `1995`)
+pop1 %<>% rename(pop2005 = `2005`, pop1995=`1995`)
+urbanpop1 <- urbanpop %>% 
+  dplyr::select(`Country name`, `2005`, `1995`) %>%
+  rename(urbanpop2005 = `2005`, urbanpop1995=`1995`)
+urban_pop_perc <- merge(pop1, urbanpop1)  
+urban_pop_perc %<>% 
+  mutate(perc2005=as.numeric(urbanpop2005)/as.numeric(pop2005),
+         perc1995=as.numeric(urbanpop1995)/as.numeric(pop2005),
+         perc_incre=perc2005-perc1995) 
+
+region <- Country_info %>% 
+  filter(Region!="Aggregates") %>%
+  select(`Country code`, `Country name`, Region)
+
+urban_pop_perc <- merge(region, urban_pop_perc)
+urban_pop_perc %<>% drop_na()
+```
+
+The world is devided into 7 regions by the database, which are  
+- East Asia & Pacific  
+- Europe $ Central Asia  
+- Latin America & Caribbean  
+- Middle East & North Africa  
+- North America  
+- South Asia  
+- Sub-Saharan Africa  
+One would follow this devision to compare and contrast the urbanization in different regions.  
+
+## scatterplot
+
+In the graph below, points above the (imaginary)line going through the origin with slope 1 represent countries with growth in urban population percentage from 1995 to 2005.
+
+```{r, fig.height=5, fig.width=8}
+
+ggplot(urban_pop_perc)+
+  geom_point(aes(x=perc1995, y=perc2005, color=Region))+
+  labs(title="urban population comparison",
+        x ="urban population percentage 1995", 
+       y = "urban population percentage 2005")+
+  scale_color_manual(values=c("#999999", "#E69F00", "#56B4E9", "#F0E442", "#6600FF", "#CCFF00", "#CC79A7"))
+
+```
+
+## boxplot
+
+We can compare the changes in overall urbanization in the seven regions from 1995 to 2005.
+
+```{r}
+urban_pop_perc1 <- urban_pop_perc %>% 
+  select(`Country name`, perc2005, Region) %>%
+  mutate(year="2005") %>%
+  rename(perc=perc2005)
+urban_pop_perc2 <- urban_pop_perc %>% 
+  select(`Country name`, perc1995, Region) %>%
+  mutate(year="1995")%>%
+  rename(perc=perc1995)
+urban_pop_perc3 <- rbind(urban_pop_perc1,urban_pop_perc2)
+
+ggplot(urban_pop_perc3)+aes(x=year, y=perc, fill=Region)+
+  geom_boxplot()+
+  scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9", "#F0E442", "#9999CC", "#CCFF00", "#CC79A7"))
+```
+
+
+```{r}
+ECA <- urban_pop_perc3 %>% 
+  filter(Region=="Europe & Central Asia") %>%
+  group_by(year)%>%
+  arrange(perc)%>%
+  slice(1)
+MENA <- urban_pop_perc3 %>% 
+  filter(Region=="Middle East & North Africa") %>%
+  group_by(year)%>%
+  arrange(perc)%>%
+  slice(1)
+SSA <- urban_pop_perc3 %>% 
+  filter(Region=="Sub-Saharan Africa") %>%
+  group_by(year)%>%
+  arrange(desc(perc))%>%
+  slice(1)
+```
+
+
+The outliner for `r text_spec("Europe & Central Asia", color = "#E69F00")` Region in 1995 and 2005 is `r ECA[[1,1]]`.  
+In `r text_spec("Middle East & North Africa", color = "#56B4E9")`, the country with an abnormally low urban population percentage is `r MENA[[1,1]]`  
+the `r text_spec("Sub-Saharan African", color = "#CC79A7")` country that has an abnormally high urban population percentage in both years is `r SSA[[1,1]]`.
+
+
+## top 10
+
+```{r}
+urban_pop_top_05 <- urban_pop_perc %>% 
+  dplyr::select(`Country name`, perc2005) %>%
+  arrange(desc(perc2005))%>%
+  slice(1:10)
+urban_pop_top_05$perc2005 <- round(urban_pop_top_05$perc2005,4)
+urban_pop_top_95 <- urban_pop_perc %>% 
+  dplyr::select(`Country name`, perc1995) %>%
+  arrange(desc(perc1995))%>%
+  slice(1:10)
+urban_pop_top_95$perc1995 <- round(urban_pop_top_95$perc1995,4)
+urban_pop_top <- cbind(urban_pop_top_95, urban_pop_top_05)
+colnames(urban_pop_top) <- rep(c('Country', 'Urban Population %'),2)
+kable(urban_pop_top, format = "latex", booktabs=TRUE,
+      caption = "Countries with Lagest Urban Population Percentage")%>% kable_styling(latex_options = "HOLD_position") %>% add_header_above(c("1995"=2, "2005"=2))
+```
+
+## Countries with bigest Increase 
+
+This is a list of the 10 countries whose urban population witnessed the greatest increase in the observed 20 years. 
+
+```{r}
+urban_pop_perc_10 <- urban_pop_perc %>% 
+  dplyr::select(`Country name`, perc1995, perc2005, perc_incre) %>%
+  arrange(desc(perc_incre)) %>%
+  slice(1:10)
+urban_pop_perc_10$perc_incre <- round(urban_pop_perc_10$perc_incre, 4)
+urban_pop_perc_10$perc1995 <- round(urban_pop_perc_10$perc1995, 4)
+urban_pop_perc_10$perc2005 <- round(urban_pop_perc_10$perc2005, 4)
+colnames(urban_pop_perc_10) <-c("Country", "Urban Population % 1995", 
+                                "Urban Population % 2005", "Increment")
+kable(urban_pop_perc_10, format = "latex", booktabs=TRUE, 
+      caption = "Countries with bigest Increase 1995-2005") %>%
+  kable_styling(latex_options = "HOLD_position") 
+```
+
+# Carbon Dioxide Emission Per Capita
+
+Carbon dioxide emissions are those stemming from the burning of fossil fuels and the manufacture of cement. They include carbon dioxide produced during consumption of solid, liquid, and gas fuels and gas flaring. 
+
+
+```{r}
+CO2_emiss <- data %>% filter(`Series code`=="EN.ATM.CO2E.PC")
+CO2_emiss1 <- CO2_emiss %>% select(`Country name`, `2005`, `1995`)%>%
+  rename(emission05 = `2005`, emission95=`1995`)
+CO2_emiss1 <- merge(CO2_emiss1, region) %>% 
+  filter(emission05 != '..' & emission95!= '..' )
+
+C1 <- CO2_emiss1 %>% 
+  select(`Country name`, emission05, Region) %>%
+  mutate(year="2005") %>%
+  rename(emission=emission05)
+C2 <- CO2_emiss1 %>% 
+  select(`Country name`, emission95, Region) %>%
+  mutate(year="1995") %>%
+  rename(emission=emission95)
+CO2_emiss2<- rbind(C1, C2)
+CO2_emiss2$emission <- as.numeric(CO2_emiss2$emission)
+
+ggplot(CO2_emiss2)+aes(x=year, y=emission, fill=Region)+
+  geom_boxplot()+
+  scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9", "#F0E442", "#9999CC", "#CCFF00", "#CC79A7"))
+
+```
+
+
+
+# Urbanization and Carbon Dioxide Emission
+Now one proceed to investigate into the relationship between the two variables.
+
+## scatter plot
+
+```{r}
+Data1 <- merge(CO2_emiss2, urban_pop_perc3)
+
+ggplot(Data1)+
+  geom_point(aes(x=perc, y=emission, color=Region))+
+  facet_grid(year~.)+
+  scale_color_manual(values=c("#999999", "#E69F00", "#56B4E9", "#F0E442", "#6600FF", "#CCFF00", "#CC79A7"))+
+  labs(title=" ",
+        x ="urban population percentage", 
+       y = "CO2 emission (million metric tons)")
+```
+
+## possible linear relationship
+
+If we look at the relationship exhibited within region.
+
+```{r}
+Data3 <- Data1 %>% filter(year=="1995")
+ggplot(Data3)+aes(x=perc, y=emission, color=Region)+
+  geom_point()+
+  scale_color_manual(values=c("#999999", "#E69F00", "#56B4E9", "#F0E442", "#6600FF", "#CCFF00", "#CC79A7"))+
+  geom_smooth(method = lm)+
+  labs(title="1995",
+        x ="urban population percentage", 
+       y = "CO2 emission (million metric tons)")+
+    facet_wrap(~Region)
+
+```
+
+
+```{r}
+Data2 <- Data1 %>% filter(year=="2005")
+ggplot(Data2)+aes(x=perc, y=emission, color=Region)+
+  geom_point()+
+  scale_color_manual(values=c("#999999", "#E69F00", "#56B4E9", "#F0E442", "#6600FF", "#CCFF00", "#CC79A7"))+
+  geom_smooth(method = lm)+
+  labs(title="2005",
+        x ="urban population percentage", 
+       y = "CO2 emission (million metric tons)")+
+    facet_wrap(~Region)
+
+```
+
