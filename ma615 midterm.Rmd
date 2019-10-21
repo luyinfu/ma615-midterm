@@ -6,8 +6,6 @@ output:
   pdf_document:
     latex_engine: xelatex
     df_print: paged
-
-
 ---
 
 ```{r setup, include=FALSE}
@@ -159,7 +157,7 @@ kable(urban_pop_top, format = "latex", booktabs=TRUE,
 
 ## Countries with bigest Increase 
 
-This is a list of the 10 countries whose urban population witnessed the greatest increase in the observed 20 years. 
+This is a list of the 10 countries whose urban population witnessed the greatest increase in the observed 10 years. 
 
 ```{r}
 urban_pop_perc_10 <- urban_pop_perc %>% 
