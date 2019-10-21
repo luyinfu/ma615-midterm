@@ -77,9 +77,10 @@ The world is devided into 7 regions by the database, which are
 - Sub-Saharan Africa  
 One would follow this devision to compare and contrast the urbanization in different regions.  
 
-## scatterplot
+## Scatterplot
 
 In the graph below, points above the (imaginary)line going through the origin with slope 1 represent countries with growth in urban population percentage from 1995 to 2005.
+
 
 ```{r, fig.height=5, fig.width=8}
 
@@ -92,7 +93,7 @@ ggplot(urban_pop_perc)+
 
 ```
 
-## boxplot
+## Boxplot
 
 We can compare the changes in overall urbanization in the seven regions from 1995 to 2005.
 
@@ -137,7 +138,7 @@ In `r text_spec("Middle East & North Africa", color = "#56B4E9")`, the country w
 the `r text_spec("Sub-Saharan African", color = "#CC79A7")` country that has an abnormally high urban population percentage in both years is `r SSA[[1,1]]`.
 
 
-## top 10
+## Top 10
 
 ```{r}
 urban_pop_top_05 <- urban_pop_perc %>% 
@@ -207,9 +208,9 @@ ggplot(CO2_emiss2)+aes(x=year, y=emission, fill=Region)+
 
 
 # Urbanization and Carbon Dioxide Emission
-Now one proceed to investigate into the relationship between the two variables.
+Now one proceed to investigate into the relationship between the two variables. A positive relationship is suspected because CO2 emission can reflect the environmental impact of urbanization.
 
-## scatter plot
+## Scatterplot
 
 ```{r}
 Data1 <- merge(CO2_emiss2, urban_pop_perc3)
@@ -223,9 +224,10 @@ ggplot(Data1)+
        y = "CO2 emission (million metric tons)")
 ```
 
-## possible linear relationship
+## Possible linear relationship
 
-If we look at the relationship exhibited within region.
+If we look at the relationship exhibited within region,
+
 
 ```{r}
 Data3 <- Data1 %>% filter(year=="1995")
@@ -240,6 +242,7 @@ ggplot(Data3)+aes(x=perc, y=emission, color=Region)+
 
 ```
 
+In 2005, the trend is similar although the actual slopes are slightly different.
 
 ```{r}
 Data2 <- Data1 %>% filter(year=="2005")
