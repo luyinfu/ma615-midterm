@@ -103,7 +103,7 @@ SSA <- urban_pop_perc3 %>%
   slice(1)
 ```
 
-<span style="color: blue>The outliner for Europe & Central Asia Region in 1995 and 2005 is `r ECA[[1,1]]`.
+<span style="color: blue">The outliner for Europe & Central Asia Region in 1995 and 2005 is `r ECA[[1,1]]`.
 <br>
 In Middle East & North Africa, the country with an abnormally low urban population percentage is `r MENA[[1,1]]`
 <br>
@@ -138,11 +138,11 @@ urban_pop_perc_10 <- urban_pop_perc %>%
   arrange(desc(perc_incre)) %>%
   slice(1:10)
 urban_pop_perc_10$perc_incre <- round(urban_pop_perc_10$perc_incre, 4)
-urban_pop_perc_10$perc1995 <- round(urban_pop_perc_10$perc1995, 4)
+urban_pop_perc_10$perc1995 <- round(urban_pop_perc_10$perc1995, 5)
 urban_pop_perc_10$perc2005 <- round(urban_pop_perc_10$perc2005, 4)
 colnames(urban_pop_perc_10) <-c("Country", "Urban Population % 1995", 
                                 "Urban Population % 2005", "Increment")
-kable(urban_pop_perc_10, format = "latex", booktabs=TRUE, 
+kable(urban_pop_perc_10, format = "html", booktabs=TRUE, 
       caption = "Countries with bigest Increase 1995-2005") %>%
   kable_styling(latex_options = "HOLD_position") 
 ```
