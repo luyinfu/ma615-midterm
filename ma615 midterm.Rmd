@@ -35,17 +35,19 @@ One uses the urban population percentage, which is obtained the following formul
 to measure the level of urbanization in each country.
 
 ```{r warning=FALSE}
+#load the excel data
 data <- readxl::read_xls("/Users/tsuyu/Downloads/Data\ science\ in\ R/project/World\ Bank\ Data/climate_change.xls",
          sheet = "Data")
+# extract population, urban population and region data 
 pop <- data %>% filter(`Series code`=="SP.POP.TOTL")
 urbanpop <- data %>% filter(`Series code`=="SP.URB.TOTL")
 
 Country_info <- readxl::read_xls("/Users/tsuyu/Downloads/Data\ science\ in\ R/project/World\ Bank\ Data/climate_change.xls", sheet="Country")
-
 ```
 
 
 ```{r warning=FALSE}
+#allocate data in 1995 and 2005
 pop1 <-  dplyr::select(pop, `Country name`, `2005`, `1995`)
 pop1 %<>% rename(pop2005 = `2005`, pop1995=`1995`)
 urbanpop1 <- urbanpop %>% 
@@ -55,7 +57,7 @@ urban_pop_perc <- merge(pop1, urbanpop1)
 urban_pop_perc %<>% 
   mutate(perc2005=as.numeric(urbanpop2005)/as.numeric(pop2005),
          perc1995=as.numeric(urbanpop1995)/as.numeric(pop2005),
-         perc_incre=perc2005-perc1995) 
+         perc_incre=perc2005-perc1995)  #calculate urban population percentage
 
 region <- Country_info %>% 
   filter(Region!="Aggregates") %>%
@@ -113,6 +115,7 @@ ggplot(urban_pop_perc3)+aes(x=year, y=perc, fill=Region)+
 
 
 ```{r}
+# find out what the outliners are
 ECA <- urban_pop_perc3 %>% 
   filter(Region=="Europe & Central Asia") %>%
   group_by(year)%>%
@@ -242,7 +245,7 @@ ggplot(Data3)+aes(x=perc, y=emission, color=Region)+
 
 In 2005, the trend is similar although the actual slopes are slightly different.
 
-```{r}
+```{r, fig.height=6, fig.width=6}
 Data2 <- Data1 %>% filter(year=="2005")
 ggplot(Data2)+aes(x=perc, y=emission, color=Region)+
   geom_point()+
