@@ -135,8 +135,9 @@ urban_pop_top_95 <- urban_pop_perc %>%
 urban_pop_top_95$perc1995 <- round(urban_pop_top_95$perc1995,4)
 urban_pop_top <- cbind(urban_pop_top_95, urban_pop_top_05)
 colnames(urban_pop_top) <- rep(c('Country', 'Urban Population %'),2)
-kable(urban_pop_top, format = "html", booktabs=TRUE,
-      caption = "Countries with Lagest Urban Population Percentage")%>%
+kable(urban_pop_top, format = "html", align = "lclc",
+      caption = "Countries with Lagest Urban Population %")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
   add_header_above(c("1995"=2, "2005"=2))
 ```
 
@@ -155,7 +156,7 @@ urban_pop_perc_10$perc1995 <- round(urban_pop_perc_10$perc1995, 5)
 urban_pop_perc_10$perc2005 <- round(urban_pop_perc_10$perc2005, 4)
 colnames(urban_pop_perc_10) <-c("Country", "Urban Population % 1995", 
                                 "Urban Population % 2005", "Increment")
-kable(urban_pop_perc_10, format = "html", booktabs=TRUE, 
+kable(urban_pop_perc_10, format = "html", align = "lccc", 
       caption = "Countries with bigest Increase 1995-2005") %>%
   kable_styling(latex_options = "HOLD_position") 
 ```
