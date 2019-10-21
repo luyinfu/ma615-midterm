@@ -15,11 +15,20 @@ pacman::p_load("magrittr","knitr","ggplot2","tidyr", "dplyr", "kableExtra", "esq
 
 
 ## Introduction
+<br><br>
+<font size="6">In this report, we look at  </font>
+<br>
+<br>
+<font size="6">- World urbanization</font>
+<br>
+<br>
+<font size="6">- World carbon dioxide emission </font> 
+<br>
+<br>
+<font size="6">- Relationship between these two variables </font>
+<br><br><br><br>
 
-In this report, we look at 
-- world urbanization
-- world carbon dioxide emission
-- relationship between these two variables
+All data used are from World Bank database. And we look specifically at 1995 and 2005 to compare and contrast variable values from different countries.
 
 
 ```{r warning=FALSE}
@@ -54,7 +63,7 @@ urban_pop_perc <- merge(region, urban_pop_perc)
 urban_pop_perc %<>% drop_na()
 ```
 
-In this section, we look specifically at 1995 and 2005
+In the graph below, points above the (imaginary)line going through the origin with slope 1 represent countries with growth in urban population percentage from 1995 to 2005.
 
 ```{r}
 ggplot(urban_pop_perc)+
@@ -66,7 +75,7 @@ ggplot(urban_pop_perc)+
 
 
 
-## Comparing 
+## Boxplot 
 
 
 ```{r}
@@ -109,7 +118,9 @@ In Middle East & North Africa, the country with an abnormally low urban populati
 <br>
 the African country that has an abnormally high urban population percentage in both years is `r SSA[[1,1]]`.</span>
 
-## Countries
+## Countries with high level of urbanization
+
+Below are the 10 countries and areas with the largest urban population percentage.
 
 ```{r}
 urban_pop_top_05 <- urban_pop_perc %>% 
@@ -130,7 +141,9 @@ kable(urban_pop_top, format = "html", booktabs=TRUE,
 ```
 
 
-## top
+## Top 10 growth
+
+Below are the 10 countries with the largest growth in their urban population percentage.
 
 ```{r}
 urban_pop_perc_10 <- urban_pop_perc %>% 
